@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
-#include <mutex>
 #include <set>
 #include <iso646.h>
 
@@ -13,7 +12,6 @@ char message[1000];
 
 int eflag = 0, bflag = 0;
 std::set<int> socket_fd;
-std::mutex mutex;
 
 void ERROR(const char *str)
 {
@@ -44,14 +42,11 @@ void *myFunc(int socket)
         //broadcast
         if (bflag)
         {
-            //broadcast하는 동안 message의 내용이 변하지 않도록 mutex 설정
-            mutex.lock();
             for (int fd : socket_fd)
             {
                 if (write(fd, message, strlen(message)) == -1)
                     ERROR("write() fail");
             }
-            mutex.unlock();
         }
     }
 }
